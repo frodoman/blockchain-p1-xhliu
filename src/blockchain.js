@@ -66,6 +66,12 @@ class Blockchain {
 
         return new Promise(async (resolve, reject) => {
 
+            let valid = await self.validateChain()
+
+            if(!valid) {
+                reject(Error("Block chain not valid"));
+            }
+
             // add time and height to the new block
             block.time = new Date().getTime().toString().slice(0,-3);
             block.height = self.chain.length;
@@ -205,7 +211,7 @@ class Blockchain {
         let self = this;
         return new Promise((resolve, reject) => {
             // find the block by index
-            let block = self.chain.filter(p => p.height === height)[0];
+            let block = self.chain.find(p => p.height === height);
             if(block){
                 resolve(block);
             } else {
@@ -255,21 +261,30 @@ class Blockchain {
 
         return new Promise(async (resolve, reject) => {
 
-            // loop through all the blocks
-            for (let i = 1; i < self.chain.length; i++) { 
-                let previousBlock = self.chain[i-1];
-                let currentBlock = self.chain[i];
-
-                // validate the current block
-                if(!currentBlock.validate()) {
-                    errorLog.push("Block " + i.toString() +  " validation failed.");
-                }
-                // compare with the previous block hash
-                if(currentBlock.previousBlockHash !== previousBlock.hash) {
-                    errorLog.push("Block " + i.toString() + " previous hash invalid!");
+            if(self.chain.length === 0) {
+                resolve(true);
+            }
+            else if(self.chain.length === 1) {
+                if(!self.chain[0].validate()) {
+                    errorLog.push("Block 0 validation failed.");
                 }
             }
+            else {
+                // loop through all the blocks
+                for (let i = 1; i < self.chain.length; i++) { 
+                    let previousBlock = self.chain[i-1];
+                    let currentBlock = self.chain[i];
 
+                    // validate the current block
+                    if(!currentBlock.validate()) {
+                        errorLog.push("Block " + i.toString() +  " validation failed.");
+                    }
+                    // compare with the previous block hash
+                    if(currentBlock.previousBlockHash !== previousBlock.hash) {
+                        errorLog.push("Block " + i.toString() + " previous hash invalid!");
+                    }
+                }
+            }
             // no errors
             if(errorLog.length == 0) {
                 resolve(true);
