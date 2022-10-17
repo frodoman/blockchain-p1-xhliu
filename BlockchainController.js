@@ -17,6 +17,7 @@ class BlockchainController {
         this.getBlockByHash();
         this.getStarsByOwner();
         this.getAllBlocks();
+        this.getValidationStatus();
     }
 
     // get the list of all block in the current chain
@@ -131,6 +132,22 @@ class BlockchainController {
                 return res.status(500).send("Block Not Found! Review the Parameters!");
             }
             
+        });
+    }
+
+    getValidationStatus() {
+        this.app.get("/validate", async (req, res) => {
+
+            try {
+                let valid = await this.blockchain.validateChain()
+                if(valid){
+                    return res.status(200).send("Blockchain is valid.");
+                } else {
+                    return res.status(404).send("Blockchain invalid!");
+                }
+            } catch (error) {
+                return res.status(500).send("An error happened!");
+            }
         });
     }
 

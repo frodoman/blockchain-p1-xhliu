@@ -44,18 +44,14 @@ class Block {
             // Recalculate the hash of the Block
             // Comparing if the hashes changed
             // Returning the Block is not valid
-            const newHash = SHA256(JSON.stringify({
-                ...self, 
-                hash: null
-            })
-            ).toString();
+            const newHash = self.makeHash();
             
             // Returning the Block is valid
             if (newHash === oldHash ) {
                 resolve(true);
             }
             else {
-                reject(Error("Validation failed."));
+                reject(Error("Validation failed. \nOld: {" + JSON.stringify(self) + "\n} \nNew: " + newHash.toString()));
             }
         });
     }
@@ -100,6 +96,15 @@ class Block {
         return JSON.parse(hex2ascii(this.body));
     }
 
+    makeHash() {
+       return SHA256(JSON.stringify({
+            "hash": null,
+            "height": this.height,
+            "body": this.body,
+            "time": this.time,
+            "previousBlockHash": this.previousBlockHash
+        })).toString();
+    }
 }
 
 module.exports.Block = Block;                    // Exposing the Block class as a module

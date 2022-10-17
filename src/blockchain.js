@@ -66,25 +66,25 @@ class Blockchain {
 
         return new Promise(async (resolve, reject) => {
 
-            let valid = await self.validateChain()
-
-            if(!valid) {
-                reject(Error("Block chain not valid"));
-            }
-
             // add time and height to the new block
             block.time = new Date().getTime().toString().slice(0,-3);
             block.height = self.chain.length;
             
+            // get prevous block hash
+            if(self.chain.length > 0) {
+                block.previousBlockHash = self._getLatestBlock().hash;
+            }
+
             // create new hash for the new block
-            let newHash = SHA256(JSON.stringify(block)).toString();
+            let newHash = block.makeHash();
 
             if(newHash) {
                 block.hash = newHash;
 
-                // get prevous block hash
-                if(self.chain.length > 0) {
-                    block.previousBlockHash = self._getLatestBlock().hash;
+                // validate the new block
+                let valid = await self.validateChain()
+                if(!valid) {
+                    reject(Error("Block chain not valid"));
                 }
 
                 // add to the chain
