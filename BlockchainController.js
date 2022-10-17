@@ -135,6 +135,7 @@ class BlockchainController {
         });
     }
 
+    // Check if the current blockchain is valid
     getValidationStatus() {
         this.app.get("/validate", async (req, res) => {
 
