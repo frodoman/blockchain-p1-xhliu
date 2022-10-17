@@ -74,7 +74,7 @@ class Blockchain {
                 block.height = self.chain.length;
 
                 if(self.chain.length > 0) {
-                    block.previousHash = self._getLatestBlock().hash;
+                    block.previousBlockHash = self._getLatestBlock().hash;
                 }
 
                 this.chain.push(block);
@@ -141,7 +141,29 @@ class Blockchain {
     submitStar(address, message, signature, star) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-            
+            const messageTime = parseInt(message.split(':')[1]);
+            let currentTime = parseInt(new Date().getTime().toString().slice(0, -3)); // in seconds
+
+            // check if the message created within 5 minutes
+            if (currentTime >= (messageTime + 5*60)) {
+                reject(Error("Expired"));
+            }
+
+            // validate with bitcoin service
+            try {
+                const isValid = bitcoinMessage.verify(message, address, signature)
+                if(isValid == false) {
+                    reject(Error("Failed message validation."));
+                }
+                const block = new BlockClass.Block({data: message + ":" + JSON.stringify(star) });
+                self._addBlock(block)
+                .then((result) => {
+                    resolve(result);
+                });
+
+            } catch(error) {
+                reject(error);
+            }
         });
     }
 
