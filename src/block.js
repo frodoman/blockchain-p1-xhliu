@@ -47,11 +47,11 @@ class Block {
             const newHash = SHA256(JSON.stringify(self)).toString();
             
             // Returning the Block is valid
-            if (newHash) {
-                resolve( newHash === oldHash );
+            if (newHash === oldHash ) {
+                resolve(true);
             }
             else {
-                reject(Error("Failed to generate new hash"));
+                reject(Error("Validation failed."));
             }
         });
     }
@@ -69,17 +69,31 @@ class Block {
         // Getting the encoded data saved in the Block
         // Decoding the data to retrieve the JSON representation of the object
         // Parse the data to an object to be retrieve.
+
+        /* TODO: - Use Promise version as follows: 
+        // How to call this effectively inside a loop?
+
         let self = this;
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             const encodedBody = self.body
 
-            // Resolve with the data if the object isn't the Genesis block
-            if (self.previousBlockHash) {
-                resolve( JSON.parse(hex2ascii(encodedBody)))
-            } else {
-                reject(Error("Invalid for Genesis block"))
+            // this is the genesis block
+            if (self.height == 0) {
+                resolve("This is the Genesis block");
             }
+            // normal block
+            else if (self.previousBlockHash) {
+                let object = JSON.parse(hex2ascii(encodedBody));
+                if(object) {
+                    resolve(object);
+                } else {
+                    reject(Error("Empty block data."));
+                }
+             }
         });
+        */
+
+        return JSON.parse(hex2ascii(this.body));
     }
 
 }
