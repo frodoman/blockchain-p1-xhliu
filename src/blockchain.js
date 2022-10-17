@@ -63,9 +63,6 @@ class Blockchain {
      */
     _addBlock(block) {
         let self = this;
-        
-        console.log("Current Chain ");
-        console.log(JSON.stringify(self.chain))
 
         return new Promise(async (resolve, reject) => {
 
@@ -83,14 +80,10 @@ class Blockchain {
                 this.chain.push(block);
                 this.height = this.chain.length;
 
-                console.log("New block added!")
-                console.log(JSON.stringify(self.chain))
-
                 resolve(block);
             } 
             else {
                 reject(Error("Failed to add new block:"));
-                console.log("Failed to add block: ", JSON.stringify(block));
             }
         });
     }
@@ -122,7 +115,9 @@ class Blockchain {
      */
     requestMessageOwnershipVerification(address) {
         return new Promise((resolve) => {
-            
+            const timeText = new Date().getTime().toString().slice(0,-3);
+            const message = address + ":" + timeText +  ":starRegistry";
+            resolve(message)
         });
     }
 
